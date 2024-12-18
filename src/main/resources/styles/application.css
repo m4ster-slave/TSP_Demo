@@ -4,5 +4,37 @@
 }
 
 .label {
-  -fx-font-size: 20px;
+  -fx-font-size: 14px;
+}
+
+.section-title {
+  -fx-font-size: 18px;
+  -fx-font-weight: bold;
+  -fx-padding: 0 0 10 0;
+}
+
+.algorithm-radio {
+  -fx-padding: 5;
+}
+
+.algorithm-radio:selected .radio {
+  -fx-background-color: #2196f3;
+}
+
+.search-bar {
+  -fx-background-color: white;
+  -fx-border-color: #cccccc;
+  -fx-border-radius: 3;
+  -fx-padding: 5;
+  -fx-font-size: 14px;
+}
+
+.search-bar:focused {
+  -fx-border-color: #2196f3;
+}
+
+.map-view {
+  -fx-background-color: #f0f0f0;
+  -fx-border-color: #ddd;
+  -fx-border-width: 1;
 }
