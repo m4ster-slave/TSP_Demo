@@ -1,26 +1,23 @@
 package com.tsp.gui;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-
-import java.util.Random;
 
 public class MainView extends Application {
     private WorldMap worldMap;
     private VBox algorithmSelector;
-    private TextField searchBar;
+    private CityAutocompleteTextField searchBar;
+    private ListView<String> selectedCitiesList;
+    private ObservableList<String> selectedCities;
     
     @Override
     public void start(Stage primaryStage) {
@@ -29,10 +26,18 @@ public class MainView extends Application {
         
         setupWorldMap();
         setupAlgorithmSelector();
+        setupSelectedCitiesList();  // This now adds to algorithmSelector
         setupSearchBar();
         
+        // Create a VBox for the right side containing the algorithm selector
+        // (which now includes the cities list)
+        VBox rightPanel = new VBox(10);
+        rightPanel.setPadding(new Insets(10));
+        rightPanel.getChildren().add(algorithmSelector);
+        VBox.setVgrow(algorithmSelector, Priority.ALWAYS);
+        
         root.setCenter(worldMap);
-        root.setRight(algorithmSelector);
+        root.setRight(rightPanel);
         root.setBottom(searchBar);
         
         Scene scene = new Scene(root, 1024, 768);
@@ -42,8 +47,9 @@ public class MainView extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-
-        addSampleCities();
+        primaryStage.setOnCloseRequest(event -> {
+            searchBar.cleanup();
+        });
     }
     
     private void setupWorldMap() {
@@ -81,25 +87,35 @@ public class MainView extends Application {
         );
     }
     
-    private void setupSearchBar() {
-        searchBar = new TextField();
-        searchBar.setPromptText("Search for cities...");
-        searchBar.setPadding(new Insets(10));
-        searchBar.getStyleClass().add("search-bar");
+    private void setupSelectedCitiesList() {
+        VBox citiesContainer = new VBox(5);
+        Label title = new Label("Selected Cities");
+        title.getStyleClass().add("section-title");
         
-        searchBar.setOnAction(e -> searchCities(searchBar.getText()));
+        selectedCities = FXCollections.observableArrayList();
+        selectedCitiesList = new ListView<>(selectedCities);
+        selectedCitiesList.setPrefHeight(300);
+        
+        Button clearButton = new Button("Clear All");
+        clearButton.setOnAction(e -> {
+            selectedCities.clear();
+            worldMap.clearCities();
+        });
+        
+        citiesContainer.getChildren().addAll(title, selectedCitiesList, clearButton);
+        VBox.setVgrow(selectedCitiesList, Priority.ALWAYS);
+        
+        // Replace the algorithmSelector reference with the combined container
+        algorithmSelector.getChildren().add(citiesContainer);
     }
     
-    private void searchCities(String query) {
-        // TODO: city search functionality
-        System.out.println("Searching for: " + query);
-    }
-
-    private void addSampleCities() {
-        // Add some sample cities to test the map
-        worldMap.addCity(48.2082, 16.3719, "Vienna");      // Vienna, Austria
-        worldMap.addCity(35.6762, 139.6503, "Tokyo");      // Tokyo, Japan
-        worldMap.addCity(40.7128, -74.0060, "New York");   // New York, USA
-        worldMap.addCity(-33.8688, 151.2093, "Sydney");    // Sydney, Australia
+    private void setupSearchBar() {
+        searchBar = new CityAutocompleteTextField();
+        searchBar.setOnCitySelected((name, lat, lon) -> {
+            if (!selectedCities.contains(name)) {
+                selectedCities.add(name);
+                worldMap.addCity(lon, lat, name);
+            }
+        });
     }
 }

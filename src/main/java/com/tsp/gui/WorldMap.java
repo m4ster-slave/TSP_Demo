@@ -1,26 +1,24 @@
 package com.tsp.gui;
 
+import javafx.geometry.Point2D;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.geometry.Point2D;
 
 public class WorldMap extends Pane {
-    private static final double MAP_ASPECT_RATIO = 2.0; // Standard world map ratio (width/height)
+    private static final double MAP_ASPECT_RATIO = 2.0;
     private ImageView mapImageView;
-    private double baseWidth = 800; // Initial width
+    private double baseWidth = 800;
     private double baseHeight = baseWidth / MAP_ASPECT_RATIO;
 
     public WorldMap() {
-        // Load the world map image
         try {
             Image image = new Image(getClass().getResource("/images/world-map.png").toString());
             mapImageView = new ImageView(image);
         } catch (NullPointerException e) {
-
-            // Fallback to blank background
             mapImageView = new ImageView();
             System.err.println("Warning: Could not load world map image");
         }
@@ -34,27 +32,22 @@ public class WorldMap extends Pane {
             double width = newValue.getWidth();
             double height = newValue.getHeight();
             
-            // Calculate the scaling factor to fit the map while preserving aspect ratio
             double scale = Math.min(width / baseWidth, height / baseHeight);
             
             mapImageView.setFitWidth(baseWidth * scale);
             mapImageView.setFitHeight(baseHeight * scale);
             
-            // Center the map in the pane
             mapImageView.setTranslateX((width - mapImageView.getFitWidth()) / 2);
             mapImageView.setTranslateY((height - mapImageView.getFitHeight()) / 2);
             
-            // Reposition any existing points on the map
             repositionAllPoints();
         });
     }
 
     public Point2D geoToPixel(double lat, double lon) {
-        // Convert geographic coordinates to normalized coordinates (0-1)
         double x = (lon + 180) / 360.0;
         double y = (90 - lat) / 180.0;
         
-        // Convert to pixel coordinates
         double mapWidth = mapImageView.getFitWidth();
         double mapHeight = mapImageView.getFitHeight();
         
@@ -75,15 +68,18 @@ public class WorldMap extends Pane {
         cityPoint.getProperties().put("longitude", lon);
         cityPoint.getProperties().put("cityName", name);
         
-        // Add tooltip with city name
-        javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(name);
-        javafx.scene.control.Tooltip.install(cityPoint, tooltip);
+        Tooltip tooltip = new Tooltip(name);
+        Tooltip.install(cityPoint, tooltip);
         
         cityPoint.setLayoutX(point.getX());
         cityPoint.setLayoutY(point.getY());
         
         getChildren().add(cityPoint);
         return cityPoint;
+    }
+    
+    public void clearCities() {
+        getChildren().removeIf(node -> node instanceof Circle);
     }
 
     private void repositionAllPoints() {
