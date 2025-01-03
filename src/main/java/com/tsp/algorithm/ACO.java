@@ -23,7 +23,7 @@ public class ACO implements TSPAlgorithm {
 
     @Override
     public String getName() {
-        return "Nearest Neighbor";
+        return "ACO ";
     }
 
     @Override

@@ -12,6 +12,7 @@ public class AlgorithmPanel extends VBox {
     private final List<TSPAlgorithm> algorithms;
     private final TextArea resultArea;
     private final PathRenderer pathRenderer;
+    private int selectedAlgorithm;
     
     public AlgorithmPanel(WorldMap worldMap) {
         setPadding(new Insets(10));
@@ -32,6 +33,10 @@ public class AlgorithmPanel extends VBox {
         
         getChildren().add(resultArea);
     }
+
+    public void selectAlgorithm(int selectedAlgorithm) {
+      this.selectedAlgorithm = selectedAlgorithm;
+    }
     
     public void runAlgorithms(List<CityInfo> cities) {
         if (cities.size() < 2) {
@@ -50,8 +55,7 @@ public class AlgorithmPanel extends VBox {
                 algorithm.getExecutionTime()
             ));
             
-            // For demo, show the path of the first algorithm
-            if (algorithm == algorithms.get(0)) {
+            if (algorithm == algorithms.get(selectedAlgorithm)) {
                 pathRenderer.setPathColor(Color.BLUE);
                 pathRenderer.renderPath(path);
             }

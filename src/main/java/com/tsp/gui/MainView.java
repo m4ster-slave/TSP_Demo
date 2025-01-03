@@ -91,6 +91,20 @@ public class MainView extends Application {
         nearestNeighborBtn.getStyleClass().add("algorithm-radio");
         branchAndBoundBtn.getStyleClass().add("algorithm-radio");
         antColonyBtn.getStyleClass().add("algorithm-radio");
+
+
+        nearestNeighborBtn.setOnAction(e -> {
+            algorithmPanel.selectAlgorithm(0);
+            algorithmPanel.runAlgorithms(selectedCities);
+        });
+        branchAndBoundBtn.setOnAction(e -> {
+            algorithmPanel.selectAlgorithm(1);
+            algorithmPanel.runAlgorithms(selectedCities);
+        });
+        antColonyBtn.setOnAction(e -> {
+            algorithmPanel.selectAlgorithm(2);
+            algorithmPanel.runAlgorithms(selectedCities);
+        });
         
         algorithmSelector.getChildren().addAll(
             title,

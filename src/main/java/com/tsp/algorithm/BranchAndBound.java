@@ -23,7 +23,7 @@ public class BranchAndBound implements TSPAlgorithm {
 
     @Override
     public String getName() {
-        return "Nearest Neighbor";
+        return "Branch And Bound";
     }
 
     @Override
