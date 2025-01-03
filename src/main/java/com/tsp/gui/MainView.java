@@ -122,18 +122,19 @@ public class MainView extends Application {
     }
     
     private void setupSearchBar() {
-        searchBar = new CityAutocompleteTextField();
-        searchBar.setOnCitySelected((name, lat, lon) -> {
-            CityData.CityInfo newCity = new CityData.CityInfo(name, 0, lon, lat);
-            if (!selectedCities.contains(newCity)) {
-                selectedCities.add(newCity);
-                worldMap.addCity(newCity);
-                algorithmPanel.runAlgorithms(selectedCities);
-            }
-        });
+         searchBar = new CityAutocompleteTextField();
+         searchBar.setOnCitySelected((name, lat, lon) -> {
+              CityData.CityInfo newCity = new CityData.CityInfo(name, 0, lon, lat);
+              // match by name 
+              if (!selectedCities.stream().anyMatch(city -> city.getName().equals(name))) {
+                 selectedCities.add(newCity);
+                 worldMap.addCity(newCity);
+                 algorithmPanel.runAlgorithms(selectedCities);
+              }
+         });
     }
 
-  private void setupAlgorithmPanel() {
-      algorithmPanel = new AlgorithmPanel(worldMap);
-  }
+    private void setupAlgorithmPanel() {
+        algorithmPanel = new AlgorithmPanel(worldMap);
+    }
 }
