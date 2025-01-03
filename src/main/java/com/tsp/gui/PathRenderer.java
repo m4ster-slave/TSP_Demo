@@ -9,7 +9,7 @@ import java.util.List;
 
 public class PathRenderer extends Group {
     private final WorldMap worldMap;
-    private Color pathColor = Color.BLUE;
+    private Color pathColor = Color.GREEN;
     
     public PathRenderer(WorldMap worldMap) {
         this.worldMap = worldMap;

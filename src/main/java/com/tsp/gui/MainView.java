@@ -35,19 +35,27 @@ public class MainView extends Application {
         // Create a VBox for the right side for the algorithm selector and cities list
         VBox rightPanel = new VBox(10);
         rightPanel.setPadding(new Insets(10));
-        rightPanel.getChildren().addAll(algorithmSelector, algorithmPanel);
+        rightPanel.getChildren().addAll(algorithmSelector, searchBar);
+        rightPanel.setPrefWidth(300);
+        rightPanel.setMinWidth(300);
+
+        VBox leftPanel = new VBox(10);
+        leftPanel.setPadding(new Insets(10));
+        leftPanel.getChildren().addAll(worldMap, algorithmPanel);
+        leftPanel.setPrefWidth(700);
+        leftPanel.setMinWidth(700);
+
         VBox.setVgrow(algorithmSelector, Priority.ALWAYS);
         
-        //position elements
-        root.setCenter(worldMap);
+        root.setLeft(leftPanel);
         root.setRight(rightPanel);
-        root.setBottom(searchBar);
         
-        Scene scene = new Scene(root, 1024, 768);
+        Scene scene = new Scene(root, 1024, 600);
         scene.getStylesheets().add(getClass().getResource("/styles/application.css").toExternalForm());
         
         primaryStage.setTitle("TSP Solver");
         primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
         primaryStage.show();
 
 

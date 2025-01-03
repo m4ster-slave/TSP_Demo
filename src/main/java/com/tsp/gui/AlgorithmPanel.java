@@ -28,7 +28,7 @@ public class AlgorithmPanel extends VBox {
         
         resultArea = new TextArea();
         resultArea.setEditable(false);
-        resultArea.setPrefRowCount(4);
+        resultArea.setPrefRowCount(11);
         
         getChildren().add(resultArea);
     }
