@@ -72,28 +72,29 @@ Mit den Bedingungen:
 
 # 3. Glossar <a name="glossar"></a>
 
-| Begriff             | Definition                                                                                                               |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| TSP                 | Traveling Salesperson Problem - Optimierungsproblem zur Findung der kürzesten Rundreise durch mehrere Orte               |
-| ACO                 | Ant Colony Optimization - Algorithmus, der das Verhalten von Ameisen bei der Futtersuche nachahmt                        |
-| Branch-and-Bound    | Exaktes Lösungsverfahren, das den Lösungsraum systematisch durchsucht und nicht-optimale Lösungen ausschließt            |
-| GUI                 | Graphical User Interface - Grafische Benutzeroberfläche zur Bedienung des Programms                                      |
-| JavaFX              | Java-Framework zur Entwicklung von grafischen Benutzeroberflächen                                                        |
-| Heuristik           | Näherungsverfahren, das schnell gute, aber nicht unbedingt optimale Lösungen findet                                      |
-| Nearest Neighbor    | Einfacher Algorithmus, der immer zum nächstgelegenen noch nicht besuchten Ort geht                                       |
-| Optimale Lösung     | Die bestmögliche Lösung für ein Problem (beim TSP: kürzeste mögliche Route)                                              |
-| NP-vollständig      | Bezeichnet Probleme, für die keine effizienten Algorithmen bekannt sind und die Rechenzeit mit der Größe extrem ansteigt |
-| Laufzeitkomplexität | Beschreibt, wie stark die Rechenzeit mit der Problemgröße wächst                                                         |
-| Pruning             | "Beschneiden" - Technik beim Branch-and-Bound, um nicht-optimale Lösungszweige auszuschließen                            |
-| Pheromon            | Beim ACO: Virtueller "Duftstoff", der gute Routen markiert                                                               |
-| Iterativ            | Schrittweise Vorgehensweise mit Wiederholungen                                                                           |
-| Determinismus       | Eigenschaft eines Algorithmus, bei gleichen Eingaben immer gleiche Ausgaben zu liefern                                   |
-| Parallelisierung    | Aufteilung der Berechnung auf mehrere Prozessoren zur Beschleunigung                                                     |
-| Threading           | Parallele Ausführung von Programmteilen, wichtig für responsive GUIs                                                     |
-| Parameter           | Einstellbare Werte, die das Verhalten eines Algorithmus beeinflussen                                                     |
-| Bound               | Schranke - Abschätzung der minimal möglichen Weglänge beim Branch-and-Bound                                              |
-| Optimierungsproblem | Mathematisches Problem, bei dem die beste Lösung unter bestimmten Bedingungen gesucht wird                               |
-| Konvergenz          | Beschreibt, wie schnell sich ein Algorithmus der optimalen Lösung annähert                                               |
+| Begriff             | Definition                                                                                                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TSP                 | Traveling Salesperson Problem - Optimierungsproblem zur Findung der kürzesten Rundreise durch mehrere Orte                                                                                  |
+| ACO                 | Ant Colony Optimization - Algorithmus, der das Verhalten von Ameisen bei der Futtersuche nachahmt                                                                                           |
+| Branch-and-Bound    | Exaktes Lösungsverfahren, das den Lösungsraum systematisch durchsucht und nicht-optimale Lösungen ausschließt                                                                               |
+| GUI                 | Graphical User Interface - Grafische Benutzeroberfläche zur Bedienung des Programms                                                                                                         |
+| JavaFX              | Java-Framework zur Entwicklung von grafischen Benutzeroberflächen                                                                                                                           |
+| Heuristik           | Näherungsverfahren, das schnell gute, aber nicht unbedingt optimale Lösungen findet                                                                                                         |
+| Nearest Neighbor    | Einfacher Algorithmus, der immer zum nächstgelegenen noch nicht besuchten Ort geht                                                                                                          |
+| Optimale Lösung     | Die bestmögliche Lösung für ein Problem (beim TSP: kürzeste mögliche Route)                                                                                                                 |
+| NP-vollständig      | Bezeichnet Probleme, für die keine effizienten Algorithmen bekannt sind und die Rechenzeit mit der Größe extrem ansteigt                                                                    |
+| Laufzeitkomplexität | Beschreibt, wie stark die Rechenzeit mit der Problemgröße wächst                                                                                                                            |
+| Pruning             | "Beschneiden" - Technik beim Branch-and-Bound, um nicht-optimale Lösungszweige auszuschließen                                                                                               |
+| Pheromon            | Beim ACO: Virtueller "Duftstoff", der gute Routen markiert                                                                                                                                  |
+| Iterativ            | Schrittweise Vorgehensweise mit Wiederholungen                                                                                                                                              |
+| Determinismus       | Eigenschaft eines Algorithmus, bei gleichen Eingaben immer gleiche Ausgaben zu liefern                                                                                                      |
+| Parallelisierung    | Aufteilung der Berechnung auf mehrere Prozessoren zur Beschleunigung                                                                                                                        |
+| Threading           | Parallele Ausführung von Programmteilen, wichtig für responsive GUIs                                                                                                                        |
+| Parameter           | Einstellbare Werte, die das Verhalten eines Algorithmus beeinflussen                                                                                                                        |
+| Bound               | Schranke - Abschätzung der minimal möglichen Weglänge beim Branch-and-Bound                                                                                                                 |
+| Optimierungsproblem | Mathematisches Problem, bei dem die beste Lösung unter bestimmten Bedingungen gesucht wird                                                                                                  |
+| Konvergenz          | Beschreibt, wie schnell sich ein Algorithmus der optimalen Lösung annähert                                                                                                                  |
+| Fuzzy-search        | Eine Fuzzy Search ist eine Suchmethode, die auch bei ungenauen Eingaben oder Tippfehlern passende Ergebnisse findet, indem sie die Ähnlichkeit zwischen Suchbegriff und Zieltext berechnet. |
 
 # 4. Lösungsansätze <a name="loesungsansaetze"></a>
 
@@ -335,10 +336,6 @@ Die Implementierung des TSP-Projekts führte zu wesentlichen Erkenntnissen in ve
 - Balance zwischen Laufzeitoptimierung und Codequalität/Wartbarkeit
 
 ### Verbesserungspotenzial
-
-- Parallelisierung der Algorithmen für bessere Performance bei großen Datensätzen
-- Integration zusätzlicher Heuristiken wie genetische Algorithmen
-- Erweiterung der GUI um detailliertere Analysewerkzeuge
 
 # 8. Quellenverzeichnis <a name="quellen"></a>
 
