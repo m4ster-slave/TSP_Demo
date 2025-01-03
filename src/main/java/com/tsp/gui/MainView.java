@@ -15,9 +15,10 @@ import javafx.stage.Stage;
 public class MainView extends Application {
     private WorldMap worldMap;
     private VBox algorithmSelector;
+    private AlgorithmPanel algorithmPanel;
     private CityAutocompleteTextField searchBar;
-    private ListView<String> selectedCitiesList;
-    private ObservableList<String> selectedCities;
+    private ListView<CityData.CityInfo> selectedCitiesList;
+    private ObservableList<CityData.CityInfo> selectedCities;
     
     @Override
     public void start(Stage primaryStage) {
@@ -26,16 +27,18 @@ public class MainView extends Application {
         
         setupWorldMap();
         setupAlgorithmSelector();
-        setupSelectedCitiesList();  // This now adds to algorithmSelector
+        setupSelectedCitiesList();
         setupSearchBar();
+        setupAlgorithmPanel();
         
-        // Create a VBox for the right side containing the algorithm selector
-        // (which now includes the cities list)
+        
+        // Create a VBox for the right side for the algorithm selector and cities list
         VBox rightPanel = new VBox(10);
         rightPanel.setPadding(new Insets(10));
-        rightPanel.getChildren().add(algorithmSelector);
+        rightPanel.getChildren().addAll(algorithmSelector, algorithmPanel);
         VBox.setVgrow(algorithmSelector, Priority.ALWAYS);
         
+        //position elements
         root.setCenter(worldMap);
         root.setRight(rightPanel);
         root.setBottom(searchBar);
@@ -47,6 +50,8 @@ public class MainView extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+
+        // cleanup csv data when application ends
         primaryStage.setOnCloseRequest(event -> {
             searchBar.cleanup();
         });
@@ -67,22 +72,22 @@ public class MainView extends Application {
         
         ToggleGroup algorithmGroup = new ToggleGroup();
         
-        RadioButton bruteForceBtn = new RadioButton("Nearest Neighbor");
-        RadioButton nearestNeighborBtn = new RadioButton("Branch and Bound");
+        RadioButton nearestNeighborBtn = new RadioButton("Nearest Neighbor");
+        RadioButton branchAndBoundBtn = new RadioButton("Branch and Bound");
         RadioButton antColonyBtn = new RadioButton("Ant Colony Optimization");
         
-        bruteForceBtn.setToggleGroup(algorithmGroup);
         nearestNeighborBtn.setToggleGroup(algorithmGroup);
+        branchAndBoundBtn.setToggleGroup(algorithmGroup);
         antColonyBtn.setToggleGroup(algorithmGroup);
         
-        bruteForceBtn.getStyleClass().add("algorithm-radio");
         nearestNeighborBtn.getStyleClass().add("algorithm-radio");
+        branchAndBoundBtn.getStyleClass().add("algorithm-radio");
         antColonyBtn.getStyleClass().add("algorithm-radio");
         
         algorithmSelector.getChildren().addAll(
             title,
-            bruteForceBtn,
             nearestNeighborBtn,
+            branchAndBoundBtn,
             antColonyBtn
         );
     }
@@ -105,17 +110,22 @@ public class MainView extends Application {
         citiesContainer.getChildren().addAll(title, selectedCitiesList, clearButton);
         VBox.setVgrow(selectedCitiesList, Priority.ALWAYS);
         
-        // Replace the algorithmSelector reference with the combined container
         algorithmSelector.getChildren().add(citiesContainer);
     }
     
     private void setupSearchBar() {
         searchBar = new CityAutocompleteTextField();
         searchBar.setOnCitySelected((name, lat, lon) -> {
-            if (!selectedCities.contains(name)) {
-                selectedCities.add(name);
-                worldMap.addCity(lon, lat, name);
+            CityData.CityInfo newCity = new CityData.CityInfo(name, 0, lon, lat);
+            if (!selectedCities.contains(newCity)) {
+                selectedCities.add(newCity);
+                worldMap.addCity(newCity);
+                algorithmPanel.runAlgorithms(selectedCities);
             }
         });
     }
+
+  private void setupAlgorithmPanel() {
+      algorithmPanel = new AlgorithmPanel(worldMap);
+  }
 }

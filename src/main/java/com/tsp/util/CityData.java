@@ -17,7 +17,7 @@ public class CityData {
         private final double latitude;
         private final double longitude;
         
-        public CityInfo(String name, long population, double latitude, double longitude) {
+        public CityInfo(String name, long population, double longitude, double latitude) {
             this.name = name;
             this.population = population;
             this.latitude = latitude;
@@ -31,7 +31,7 @@ public class CityData {
         
         @Override
         public String toString() {
-            return name + " (Pop: " + String.format("%,d", population) + ")";
+            return name;
         }
     }
 
@@ -61,9 +61,9 @@ public class CityData {
                 }
             }
 
-            System.out.println("Read " + cities.size() + " lines from resource: " + resourcePath);
+            System.err.println("Read " + cities.size() + " lines from resource: " + resourcePath);
 
-            // Sort cities by population in descending order
+            // Sort cities by population in descending order for fuzzy search
             cities.sort((c1, c2) -> Long.compare(c2.population, c1.population));
 
         } catch (IOException | CsvValidationException e) {

@@ -57,18 +57,16 @@ public class WorldMap extends Pane {
         );
     }
 
-    public Circle addCity(double lat, double lon, String name) {
-        Point2D point = geoToPixel(lat, lon);
+    public Circle addCity(CityData.CityInfo city) {
+        Point2D point = geoToPixel(city.getLatitude(), city.getLongitude());
         
         Circle cityPoint = new Circle(5, Color.RED);
         cityPoint.setStroke(Color.WHITE);
-        cityPoint.setStrokeWidth(2);
+        cityPoint.setStrokeWidth(1);
         
-        cityPoint.getProperties().put("latitude", lat);
-        cityPoint.getProperties().put("longitude", lon);
-        cityPoint.getProperties().put("cityName", name);
-        
-        Tooltip tooltip = new Tooltip(name);
+        cityPoint.setUserData(city);
+
+        Tooltip tooltip = new Tooltip(city.getName());
         Tooltip.install(cityPoint, tooltip);
         
         cityPoint.setLayoutX(point.getX());
@@ -87,10 +85,9 @@ public class WorldMap extends Pane {
             .filter(node -> node instanceof Circle)
             .map(node -> (Circle) node)
             .forEach(circle -> {
-                Double lat = (Double) circle.getProperties().get("latitude");
-                Double lon = (Double) circle.getProperties().get("longitude");
-                if (lat != null && lon != null) {
-                    Point2D point = geoToPixel(lat, lon);
+                CityData.CityInfo city = (CityData.CityInfo) circle.getUserData();
+                if (city != null) {
+                    Point2D point = geoToPixel(city.getLatitude(), city.getLongitude());
                     circle.setLayoutX(point.getX());
                     circle.setLayoutY(point.getY());
                 }
