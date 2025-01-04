@@ -6,7 +6,11 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -138,7 +142,7 @@ public class MainView extends Application {
     private void setupSearchBar() {
          searchBar = new CityAutocompleteTextField();
          searchBar.setOnCitySelected((name, lat, lon) -> {
-              CityData.CityInfo newCity = new CityData.CityInfo(name, 0, lon, lat);
+            CityData.CityInfo newCity = new CityData.CityInfo(name, 0, lon, lat, ""); 
               // match by name 
               if (!selectedCities.stream().anyMatch(city -> city.getName().equals(name))) {
                  selectedCities.add(newCity);

@@ -1,11 +1,13 @@
 package com.tsp.gui;
 
+import java.util.List;
+
 import com.tsp.gui.CityData.CityInfo;
+
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import java.util.List;
 
 public class PathRenderer extends Group {
     private final WorldMap worldMap;

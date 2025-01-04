@@ -1,14 +1,18 @@
 package com.tsp.gui;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-import me.xdrop.fuzzywuzzy.FuzzySearch;
 
-import java.io.*;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 
 public class CityData {
     public static class CityInfo {
@@ -16,18 +20,27 @@ public class CityData {
         private final long population;
         private final double latitude;
         private final double longitude;
+        private final String iso2Code;
         
-        public CityInfo(String name, long population, double longitude, double latitude) {
+        // Konstruktor für CSV-geladene Städte mit ISO2-Code
+        public CityInfo(String name, long population, double longitude, double latitude, String iso2Code) {
             this.name = name;
             this.population = population;
             this.latitude = latitude;
             this.longitude = longitude;
+            this.iso2Code = iso2Code;
+        }
+        
+        // Konstruktor für manuell hinzugefügte Städte
+        public CityInfo(String name, long population, double longitude, double latitude) {
+            this(name, population, longitude, latitude, "XX");  // Default ISO2 Code
         }
         
         public String getName() { return name; }
         public long getPopulation() { return population; }
         public double getLatitude() { return latitude; }
         public double getLongitude() { return longitude; }
+        public String getIso2Code() { return iso2Code; }
         
         @Override
         public String toString() {
@@ -54,14 +67,15 @@ public class CityData {
                     long population = Long.parseLong(line[9].replace("\"", ""));
                     float lon = Float.parseFloat(line[3]);
                     float lat = Float.parseFloat(line[2]);
+                    String iso2 = line[5].trim();
 
-                    cities.add(new CityInfo(cityName, population, lon, lat));
+                    cities.add(new CityInfo(cityName, population, lon, lat, iso2));
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
                     System.err.println("Error parsing line: " + Arrays.toString(line));
                 }
             }
 
-            System.err.println("Read " + cities.size() + " lines from resource: " + resourcePath);
+            System.out.println("Read " + cities.size() + " lines from resource: " + resourcePath);
 
             // Sort cities by population in descending order for fuzzy search
             cities.sort((c1, c2) -> Long.compare(c2.population, c1.population));

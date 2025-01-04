@@ -1,12 +1,18 @@
 package com.tsp.gui;
 
-import com.tsp.algorithm.*;
+import java.util.List;
+
+import com.tsp.algorithm.ACO;
+import com.tsp.algorithm.BranchAndBound;
+import com.tsp.algorithm.NearestNeighbor;
+import com.tsp.algorithm.TSPAlgorithm;
 import com.tsp.gui.CityData.CityInfo;
+import com.tsp.util.ContinentsData;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import java.util.List;
 
 public class AlgorithmPanel extends VBox {
     private final List<TSPAlgorithm> algorithms;
@@ -18,8 +24,11 @@ public class AlgorithmPanel extends VBox {
         setPadding(new Insets(10));
         setSpacing(10);
         
+        ContinentsData continentsData = new ContinentsData();
+        continentsData.loadFromCSV("/data/continents2.csv");
+
         algorithms = List.of(
-            new NearestNeighbor(),
+            new NearestNeighbor(continentsData),
             new BranchAndBound(),
             new ACO()
         );
