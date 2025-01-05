@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.tsp.gui.CityData;
+import com.tsp.gui.CityData.CityInfo;
+import com.tsp.util.DistanceCalculator;
+import com.tsp.util.TSPUtils;
 
 public class ACO implements TSPAlgorithm {
     private double pathLength;
@@ -13,28 +15,28 @@ public class ACO implements TSPAlgorithm {
     private static final int NUM_ANTS = 30;
     private static final int MAX_ITERATIONS = 100;
     private static final double EVAPORATION_RATE = 0.15;
-    private static final double ALPHA = 2.0;  // pheromone wichtigkeit
-    private static final double BETA = 2.0;   // distanz wichtigkeit
-    private static final double Q = 100.0;   // pheromone platzierfaktor
+    private static final double ALPHA = 2.0;  // pheromone importance
+    private static final double BETA = 2.0;   // distance importance
+    private static final double Q = 100.0;    // pheromone deposit factor
 
     @Override
-    public List<CityData.CityInfo> findPath(List<CityData.CityInfo> cities) {
+    public List<CityInfo> findPath(List<CityInfo> cities) {
         long startTime = System.nanoTime();
         
         int numCities = cities.size();
-        double[][] distances = calculateDistanceMatrix(cities);
+        double[][] distances = TSPUtils.calculateDistanceMatrix(cities);
         double[][] pheromones = initializePheromones(numCities);
-        List<CityData.CityInfo> bestPath = null;
+        List<CityInfo> bestPath = null;
         double bestLength = Double.MAX_VALUE;
         
         Random random = new Random();
         
         // Main ACO loop
         for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-            // Generiert Lösungen für alle Ameisen
+            // Generate solutions for all ants
             for (int ant = 0; ant < NUM_ANTS; ant++) {
-                List<CityData.CityInfo> currentPath = constructAntPath(cities, distances, pheromones, random);
-                double currentLength = calculatePathLength(currentPath);
+                List<CityInfo> currentPath = constructAntPath(cities, distances, pheromones, random);
+                double currentLength = DistanceCalculator.calculatePathLength(currentPath);
                 
                 if (currentLength < bestLength) {
                     bestLength = currentLength;
@@ -53,20 +55,20 @@ public class ACO implements TSPAlgorithm {
         return bestPath;
     }
 
-    private List<CityData.CityInfo> constructAntPath(List<CityData.CityInfo> cities, 
-                                                    double[][] distances, 
-                                                    double[][] pheromones,
-                                                    Random random) {
+    private List<CityInfo> constructAntPath(List<CityInfo> cities, 
+                                          double[][] distances, 
+                                          double[][] pheromones,
+                                          Random random) {
         int numCities = cities.size();
-        List<CityData.CityInfo> path = new ArrayList<>();
+        List<CityInfo> path = new ArrayList<>();
         boolean[] visited = new boolean[numCities];
         
-        // Startpunkt -> Erste Stadt
+        // Start from first city
         int currentCity = 0;
         path.add(cities.get(currentCity));
         visited[currentCity] = true;
         
-        // Weg zu den verbleibenden Städten
+        // Path to remaining cities
         for (int i = 1; i < numCities; i++) {
             int nextCity = selectNextCity(currentCity, visited, pheromones, distances, random);
             path.add(cities.get(nextCity));
@@ -74,7 +76,7 @@ public class ACO implements TSPAlgorithm {
             currentCity = nextCity;
         }
         
-        // Ziel: -> Erste Stadt
+        // Return to start
         path.add(cities.get(0));
         
         return path;
@@ -89,7 +91,7 @@ public class ACO implements TSPAlgorithm {
         List<Double> probabilities = new ArrayList<>();
         double total = 0.0;
         
-        // Berechnen Sie die Wahrscheinlichkeiten für jede nicht besuchte Stadt
+        // Calculate probabilities for each unvisited city
         int cityIndex = 0;
         for (boolean isVisited : visited) {
             if (!isVisited) {
@@ -102,7 +104,7 @@ public class ACO implements TSPAlgorithm {
             cityIndex++;
         }
         
-        // Wählt nächste Stadt zufällig
+        // Select next city randomly based on probabilities
         double r = random.nextDouble() * total;
         double sum = 0.0;
         
@@ -113,24 +115,8 @@ public class ACO implements TSPAlgorithm {
             }
         }
         
-        // Fallback: Rückkehr zur ersten nicht besuchten Stadt
-        if (!unvisitedCities.isEmpty()) {
-            return unvisitedCities.get(0);
-        }
-        return -1;
-    }
-
-    private double[][] calculateDistanceMatrix(List<CityData.CityInfo> cities) {
-        int numCities = cities.size();
-        double[][] distances = new double[numCities][numCities];
-        
-        for (int i = 0; i < numCities; i++) {
-            for (int j = 0; j < numCities; j++) {
-                distances[i][j] = calculateDistance(cities.get(i), cities.get(j));
-            }
-        }
-        
-        return distances;
+        // Fallback: return first unvisited city
+        return unvisitedCities.isEmpty() ? -1 : unvisitedCities.get(0);
     }
 
     private double[][] initializePheromones(int numCities) {
@@ -155,8 +141,8 @@ public class ACO implements TSPAlgorithm {
     }
 
     private void updatePheromones(double[][] pheromones, 
-                                List<CityData.CityInfo> cities,
-                                List<CityData.CityInfo> bestPath,
+                                List<CityInfo> cities,
+                                List<CityInfo> bestPath,
                                 double bestLength) {
         double deposit = Q / bestLength;
         
@@ -182,83 +168,4 @@ public class ACO implements TSPAlgorithm {
     public long getExecutionTime() {
         return this.executionTime;
     }
-
-    private double calculatePathLength(List<CityData.CityInfo> path) {
-        double length = 0.0;
-        
-
-        for (int i = 0; i < path.size() - 1; i++) {
-            length += calculateDistance(path.get(i), path.get(i + 1));
-        }
-        
-        return length;
-    }
-
-    private double calculateDistance(CityData.CityInfo city1, CityData.CityInfo city2) {
-        double lat1 = Math.toRadians(city1.getLatitude());
-        double lon1 = Math.toRadians(city1.getLongitude());
-        double lat2 = Math.toRadians(city2.getLatitude());
-        double lon2 = Math.toRadians(city2.getLongitude());
-
-        // WGS-84 Erdparameter
-        double a = 6378137.0; // Äquatorradius in Metern
-        double b = 6356752.314245; // Polarradius in Metern
-        double f = 1 / 298.257223563; // Abplattung
-
-        double L = lon2 - lon1; // Differenz der Längengrade
-        double U1 = Math.atan((1 - f) * Math.tan(lat1));
-        double U2 = Math.atan((1 - f) * Math.tan(lat2));
-        double sinU1 = Math.sin(U1);
-        double cosU1 = Math.cos(U1);
-        double sinU2 = Math.sin(U2);
-        double cosU2 = Math.cos(U2);
-
-        double lambda = L;
-        double lambdaP;
-        double iterLimit = 100;
-        double cosSqAlpha;
-        double sinSigma;
-        double cos2SigmaM;
-        double cosSigma;
-        double sigma;
-        double sinLambda;
-        double cosLambda;
-
-        do {
-            sinLambda = Math.sin(lambda);
-            cosLambda = Math.cos(lambda);
-            sinSigma = Math.sqrt(
-                    (cosU2 * sinLambda) * (cosU2 * sinLambda) +
-                    (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda) *
-                    (cosU1 * sinU2 - sinU1 * cosU2 * cosLambda)
-            );
-
-            if (sinSigma == 0) return 0;
-
-            cosSigma = sinU1 * sinU2 + cosU1 * cosU2 * cosLambda;
-            sigma = Math.atan2(sinSigma, cosSigma);
-            double sinAlpha = cosU1 * cosU2 * sinLambda / sinSigma;
-            cosSqAlpha = 1 - sinAlpha * sinAlpha;
-            cos2SigmaM = cosSigma - 2 * sinU1 * sinU2 / cosSqAlpha;
-
-            if (Double.isNaN(cos2SigmaM)) cos2SigmaM = 0;
-
-            double C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha));
-            lambdaP = lambda;
-            lambda = L + (1 - C) * f * sinAlpha *
-                    (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM)));
-
-        } while (Math.abs(lambda - lambdaP) > 1e-12 && --iterLimit > 0);
-
-        if (iterLimit == 0) return 0;
-
-        double uSq = cosSqAlpha * (a * a - b * b) / (b * b);
-        double A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
-        double B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
-        double deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) -
-                B / 6 * cos2SigmaM * (-3 + 4 * sinSigma * sinSigma) * (-3 + 4 * cos2SigmaM * cos2SigmaM)));
-
-        return (b * A * (sigma - deltaSigma)) / 1000.0; // Umwandlung in Kilometer
-    }
 }
-

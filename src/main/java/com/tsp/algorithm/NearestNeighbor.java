@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.tsp.gui.CityData.CityInfo;
+import com.tsp.util.DistanceCalculator;
 import com.tsp.util.ContinentsData;
 import com.tsp.util.ContinentsData.ContinentInfo;
 
@@ -14,7 +15,7 @@ public class NearestNeighbor implements TSPAlgorithm {
     private long executionTime;
     private final ContinentsData continentsData;
     
-    // Kosten für verschiedene Übergänge
+    // Costs for different transitions
     private static final double SAME_COUNTRY_COST = 0.0;  
     private static final double SAME_SUBREGION_COST = 1.0;
     private static final double SAME_CONTINENT_COST = 2.0;
@@ -35,12 +36,12 @@ public class NearestNeighbor implements TSPAlgorithm {
         List<CityInfo> path = new ArrayList<>();
         Set<CityInfo> unvisitedCities = new HashSet<>(cities);
         
-        // Startpunkt -> Erste Stadt
+        // Start with first city
         CityInfo currentCity = cities.get(0);
         path.add(currentCity);
         unvisitedCities.remove(currentCity);
         
-        // Findet Weg bis alle Städte besucht wurden
+        // Find path until all cities are visited
         while (!unvisitedCities.isEmpty()) {
             CityInfo nextCity = findNearestCity(currentCity, unvisitedCities);
             path.add(nextCity);
@@ -48,11 +49,11 @@ public class NearestNeighbor implements TSPAlgorithm {
             currentCity = nextCity;
         }
         
-        // Endpunkt -> Erste Stadt
+        // Return to start
         path.add(cities.get(0));
         
         pathLength = calculateTotalPathLength(path);
-        executionTime = (System.nanoTime() - startTime) / 1000;
+        executionTime = (System.nanoTime() - startTime) / 1_000_000;
         return path;
     }
 
@@ -61,7 +62,7 @@ public class NearestNeighbor implements TSPAlgorithm {
         double minCost = Double.MAX_VALUE;
         
         for (CityInfo candidate : unvisitedCities) {
-            double distance = calculateDistance(current, candidate);
+            double distance = DistanceCalculator.calculateDistance(current, candidate);
             double transitionCost = calculateTransitionCost(current, candidate);
             double totalCost = distance + transitionCost;
             
@@ -79,10 +80,10 @@ public class NearestNeighbor implements TSPAlgorithm {
         ContinentInfo info2 = continentsData.getContinentInfo(city2.getIso2Code());
         
         if (info1 == null || info2 == null) {
-            return DIFFERENT_CONTINENT_COST; // Fallback wenn keine Info verfügbar
+            return DIFFERENT_CONTINENT_COST;
         }
         
-        // Prüfe Hierarchie von spezifisch nach allgemein
+        // Check hierarchy from specific to general
         if (info1.getCountry().equals(info2.getCountry())) {
             return SAME_COUNTRY_COST;
         }
@@ -98,32 +99,12 @@ public class NearestNeighbor implements TSPAlgorithm {
         return DIFFERENT_CONTINENT_COST;
     }
 
-    private double calculateDistance(CityInfo city1, CityInfo city2) {
-        double lat1 = Math.toRadians(city1.getLatitude());
-        double lon1 = Math.toRadians(city1.getLongitude());
-        double lat2 = Math.toRadians(city2.getLatitude());
-        double lon2 = Math.toRadians(city2.getLongitude());
-
-        // Haversine formula
-        double dlon = lon2 - lon1;
-        double dlat = lat2 - lat1;
-        double a = Math.sin(dlat/2) * Math.sin(dlat/2) +
-                   Math.cos(lat1) * Math.cos(lat2) *
-                   Math.sin(dlon/2) * Math.sin(dlon/2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        
-        // Earth's radius in kilometers
-        double r = 6371;
-        return c * r;
-    }
-
     private double calculateTotalPathLength(List<CityInfo> path) {
-        double total = 0;
+        if (path.isEmpty()) return 0;
+        double total = DistanceCalculator.calculatePathLength(path);
+        // Add transition costs
         for (int i = 0; i < path.size() - 1; i++) {
-            CityInfo current = path.get(i);
-            CityInfo next = path.get(i + 1);
-            total += calculateDistance(current, next);
-            total += calculateTransitionCost(current, next);
+            total += calculateTransitionCost(path.get(i), path.get(i + 1));
         }
         return total;
     }

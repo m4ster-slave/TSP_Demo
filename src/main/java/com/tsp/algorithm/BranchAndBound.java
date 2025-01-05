@@ -1,12 +1,16 @@
 package com.tsp.algorithm;
 
 import com.tsp.gui.CityData.CityInfo;
+import com.tsp.util.DistanceCalculator;
+import com.tsp.util.TSPUtils;
 import java.util.*;
 
 public class BranchAndBound implements TSPAlgorithm {
     private double pathLength;
     private long executionTime;
     private static final double INFINITY = Double.MAX_VALUE;
+    private static final long TIME_LIMIT_MS = 5000; // 5 second timeout
+    private long startTime;
 
     private static class Node implements Comparable<Node> {
         List<Integer> path;
@@ -39,7 +43,7 @@ public class BranchAndBound implements TSPAlgorithm {
 
     @Override
     public List<CityInfo> findPath(List<CityInfo> cities) {
-        long startTime = System.nanoTime();
+        startTime = System.nanoTime();
         
         int n = cities.size();
         if (n < 2) {
@@ -47,12 +51,7 @@ public class BranchAndBound implements TSPAlgorithm {
         }
 
         // Calculate distance matrix
-        double[][] distances = new double[n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                distances[i][j] = calculateDistance(cities.get(i), cities.get(j));
-            }
-        }
+        double[][] distances = TSPUtils.calculateDistanceMatrix(cities);
 
         // Initialize priority queue with root node
         PriorityQueue<Node> pq = new PriorityQueue<>();
@@ -66,7 +65,7 @@ public class BranchAndBound implements TSPAlgorithm {
         double bestCost = INFINITY;
 
         // Branch and bound main loop
-        while (!pq.isEmpty()) {
+        while (!pq.isEmpty() && (System.nanoTime() - startTime) / 1_000_000 < TIME_LIMIT_MS) {
             Node current = pq.poll();
 
             // Skip if bound is worse than best solution
@@ -114,7 +113,7 @@ public class BranchAndBound implements TSPAlgorithm {
             // Fallback to simple path if no solution found
             finalPath = new ArrayList<>(cities);
             finalPath.add(cities.get(0));
-            this.pathLength = calculatePathLength(finalPath);
+            this.pathLength = DistanceCalculator.calculatePathLength(finalPath);
         }
 
         this.executionTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
@@ -151,33 +150,6 @@ public class BranchAndBound implements TSPAlgorithm {
         }
 
         return bound;
-    }
-
-    private double calculateDistance(CityInfo city1, CityInfo city2) {
-        double lat1 = Math.toRadians(city1.getLatitude());
-        double lon1 = Math.toRadians(city1.getLongitude());
-        double lat2 = Math.toRadians(city2.getLatitude());
-        double lon2 = Math.toRadians(city2.getLongitude());
-
-        // Haversine formula
-        double dlon = lon2 - lon1;
-        double dlat = lat2 - lat1;
-        double a = Math.sin(dlat/2) * Math.sin(dlat/2) +
-                   Math.cos(lat1) * Math.cos(lat2) *
-                   Math.sin(dlon/2) * Math.sin(dlon/2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        
-        // Earth's radius in kilometers
-        double r = 6371;
-        return c * r;
-    }
-
-    private double calculatePathLength(List<CityInfo> path) {
-        double length = 0;
-        for (int i = 0; i < path.size() - 1; i++) {
-            length += calculateDistance(path.get(i), path.get(i + 1));
-        }
-        return length;
     }
 
     @Override
