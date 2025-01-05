@@ -50,11 +50,6 @@ public class ACO implements TSPAlgorithm {
         this.pathLength = bestLength;
         this.executionTime = (System.nanoTime() - startTime) / 1_000_000;
         
-        System.out.println("Final path order:");
-        for (CityData.CityInfo city : bestPath) {
-            System.out.println(city.getName());
-        }
-        
         return bestPath;
     }
 
