@@ -119,7 +119,7 @@ public class AlgorithmPanel extends VBox {
                 // Update UI when calculation completes
                 calculation.thenAcceptAsync(result -> {
                     if (algorithmIndex == selectedAlgorithm) {
-                        pathRenderer.setPathColor(Color.BLUE);
+                        pathRenderer.setPathColor(Color.web("#3498d0"));
                         pathRenderer.renderPath(result.path);
                     }
                     updateResultArea();
@@ -131,7 +131,7 @@ public class AlgorithmPanel extends VBox {
             if (calculation != null && calculation.isDone()) {
                 try {
                     AlgorithmResult result = calculation.get();
-                    pathRenderer.setPathColor(Color.BLUE);
+                    pathRenderer.setPathColor(Color.web("#3498d0"));
                     pathRenderer.renderPath(result.path);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -140,38 +140,52 @@ public class AlgorithmPanel extends VBox {
         }
     }
     
-    private void updateResultArea() {
-        StringBuilder results = new StringBuilder();
-        boolean allDone = true;
-        
-        for (int i = 0; i < algorithms.size(); i++) {
-            CompletableFuture<AlgorithmResult> calculation = runningCalculations.get(i);
-            if (calculation != null && calculation.isDone()) {
-                try {
-                    AlgorithmResult result = calculation.get();
-                    results.append(String.format(
-                        "%s:\nPath Length: %.2f km\nTime: %d ms\nPath: %s\n\n",
-                        algorithms.get(i).getName(),
-                        result.pathLength,
-                        result.executionTime,
-                        formatPath(result.path)
-                    ));
-                } catch (Exception e) {
-                    results.append(String.format("%s: Calculation failed\n\n", 
-                        algorithms.get(i).getName()));
-                }
-            } else {
-                allDone = false;
-                results.append(String.format("%s: Calculating...\n\n", 
+    private String formatExecutionTime(long nanos) {
+    if (nanos < 1_000_000) {
+        return String.format("%d ns", nanos);
+    }
+    
+    double ms = nanos / 1_000_000.0;
+    if (ms < 1000) {
+        return String.format("%.3f ms", ms);
+    }
+    
+    double s = ms / 1000.0;
+    return String.format("%.3f s", s);
+}
+
+private void updateResultArea() {
+    StringBuilder results = new StringBuilder();
+    boolean allDone = true;
+    
+    for (int i = 0; i < algorithms.size(); i++) {
+        CompletableFuture<AlgorithmResult> calculation = runningCalculations.get(i);
+        if (calculation != null && calculation.isDone()) {
+            try {
+                AlgorithmResult result = calculation.get();
+                results.append(String.format(
+                    "%s:\nPath Length: %.2f km\nTime: %s\nPath: %s\n\n",
+                    algorithms.get(i).getName(),
+                    result.pathLength,
+                    formatExecutionTime(result.executionTime),
+                    formatPath(result.path)
+                ));
+            } catch (Exception e) {
+                results.append(String.format("%s: Calculation failed\n\n", 
                     algorithms.get(i).getName()));
             }
-        }
-        
-        resultArea.setText(results.toString());
-        if (allDone) {
-            isCalculating = false;
+        } else {
+            allDone = false;
+            results.append(String.format("%s: Calculating...\n\n", 
+                algorithms.get(i).getName()));
         }
     }
+    
+    resultArea.setText(results.toString());
+    if (allDone) {
+        isCalculating = false;
+    }
+}
 
     private String formatPath(List<CityInfo> path) {
         if (path == null || path.isEmpty()) {

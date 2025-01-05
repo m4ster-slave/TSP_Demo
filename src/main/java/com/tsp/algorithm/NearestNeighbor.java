@@ -53,7 +53,7 @@ public class NearestNeighbor implements TSPAlgorithm {
         path.add(cities.get(0));
         
         pathLength = calculateTotalPathLength(path);
-        executionTime = (System.nanoTime() - startTime) / 1_000_000;
+        executionTime = System.nanoTime() - startTime;
         return path;
     }
 

@@ -36,7 +36,6 @@ public class PathRenderer extends Group {
             Line line = new Line(point1.getX(), point1.getY(), point2.getX(), point2.getY());
             line.setStroke(pathColor);
             line.setStrokeWidth(2);
-            line.setOpacity(0.6);
             
             getChildren().add(line);
         }

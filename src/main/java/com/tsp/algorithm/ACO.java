@@ -50,7 +50,7 @@ public class ACO implements TSPAlgorithm {
         }
         
         this.pathLength = bestLength;
-        this.executionTime = (System.nanoTime() - startTime) / 1_000_000;
+        this.executionTime = System.nanoTime() - startTime;
         
         return bestPath;
     }

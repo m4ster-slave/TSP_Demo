@@ -60,7 +60,7 @@ public class WorldMap extends Pane {
     public Circle addCity(CityData.CityInfo city) {
         Point2D point = geoToPixel(city.getLatitude(), city.getLongitude());
         
-        Circle cityPoint = new Circle(5, Color.RED);
+        Circle cityPoint = new Circle(5, Color.web("#3498db"));
         cityPoint.setStroke(Color.WHITE);
         cityPoint.setStrokeWidth(1);
         

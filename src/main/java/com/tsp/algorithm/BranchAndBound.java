@@ -9,7 +9,7 @@ public class BranchAndBound implements TSPAlgorithm {
     private double pathLength;
     private long executionTime;
     private static final double INFINITY = Double.MAX_VALUE;
-    private static final long TIME_LIMIT_MS = 5000; // 5 second timeout
+    private static final long TIME_LIMIT_MS = 100000; // second timeout
     private long startTime;
 
     private static class Node implements Comparable<Node> {
@@ -116,7 +116,7 @@ public class BranchAndBound implements TSPAlgorithm {
             this.pathLength = DistanceCalculator.calculatePathLength(finalPath);
         }
 
-        this.executionTime = (System.nanoTime() - startTime) / 1_000_000; // Convert to milliseconds
+        this.executionTime = System.nanoTime() - startTime; 
         return finalPath;
     }
 
