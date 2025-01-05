@@ -80,7 +80,7 @@ public class MainView extends Application {
         
         ToggleGroup algorithmGroup = new ToggleGroup();
         
-        RadioButton nearestNeighborBtn = new RadioButton("Nearest Neighbor");
+        RadioButton nearestNeighborBtn = new RadioButton("Modified Nearest Neighbor");
         RadioButton branchAndBoundBtn = new RadioButton("Branch and Bound");
         RadioButton antColonyBtn = new RadioButton("Ant Colony Optimization");
         

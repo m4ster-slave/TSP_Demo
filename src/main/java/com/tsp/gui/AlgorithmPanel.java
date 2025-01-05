@@ -150,10 +150,11 @@ public class AlgorithmPanel extends VBox {
                 try {
                     AlgorithmResult result = calculation.get();
                     results.append(String.format(
-                        "%s:\nPath Length: %.2f km\nTime: %d ms\n\n",
+                        "%s:\nPath Length: %.2f km\nTime: %d ms\nPath: %s\n\n",
                         algorithms.get(i).getName(),
                         result.pathLength,
-                        result.executionTime
+                        result.executionTime,
+                        formatPath(result.path)
                     ));
                 } catch (Exception e) {
                     results.append(String.format("%s: Calculation failed\n\n", 
@@ -170,6 +171,15 @@ public class AlgorithmPanel extends VBox {
         if (allDone) {
             isCalculating = false;
         }
+    }
+
+    private String formatPath(List<CityInfo> path) {
+        if (path == null || path.isEmpty()) {
+            return "No path";
+        }
+        return path.stream()
+                  .map(CityInfo::getName)
+                  .collect(java.util.stream.Collectors.joining(" → "));
     }
     
     public void clear() {
