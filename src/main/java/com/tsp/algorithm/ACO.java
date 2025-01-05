@@ -266,3 +266,4 @@ public class ACO implements TSPAlgorithm {
         return (b * A * (sigma - deltaSigma)) / 1000.0; // Umwandlung in Kilometer
     }
 }
+
