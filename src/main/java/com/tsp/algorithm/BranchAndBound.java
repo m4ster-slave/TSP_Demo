@@ -9,7 +9,7 @@ public class BranchAndBound implements TSPAlgorithm {
     private double pathLength;
     private long executionTime;
     private static final double INFINITY = Double.MAX_VALUE;
-    private static final long TIME_LIMIT_MS = 100000; // second timeout
+    private static final long TIME_LIMIT_MS = 20000; // second timeout
     private long startTime;
 
     private static class Node implements Comparable<Node> {
