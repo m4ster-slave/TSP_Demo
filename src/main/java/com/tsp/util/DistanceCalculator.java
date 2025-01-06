@@ -3,6 +3,7 @@ package com.tsp.util;
 import com.tsp.gui.CityData.CityInfo;
 import java.util.List;
 
+// Quelle: https://www.baeldung.com/java-find-distance-between-points
 public class DistanceCalculator {
     // WGS-84 Earth parameters
     private static final double EARTH_RADIUS_A = 6378137.0; // Equatorial radius in meters
