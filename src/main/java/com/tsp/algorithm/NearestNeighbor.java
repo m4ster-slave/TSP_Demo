@@ -55,15 +55,13 @@ public class NearestNeighbor implements TSPAlgorithm {
 
   private CityInfo findNearestCity(CityInfo current, Set<CityInfo> unvisitedCities) {
     CityInfo nearest = null;
-    double minCost = Double.MAX_VALUE;
+    double bestRegionLevel = Double.MAX_VALUE;
 
     for (CityInfo candidate : unvisitedCities) {
-      double distance = DistanceCalculator.calculateDistance(current, candidate);
       double transitionCost = calculateTransitionCost(current, candidate);
-      double totalCost = distance + transitionCost;
 
-      if (totalCost < minCost) {
-        minCost = totalCost;
+      if (transitionCost < bestRegionLevel) {
+        bestRegionLevel = transitionCost;
         nearest = candidate;
       }
     }
