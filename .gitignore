@@ -6,3 +6,7 @@ build/
 gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
+bin
+.classpath
+.gradle 
+.settings
