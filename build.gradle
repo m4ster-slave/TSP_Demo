@@ -32,9 +32,6 @@ dependencies {
     implementation 'me.xdrop:fuzzywuzzy:1.4.0'
 }
 
-test {
-    useJUnitPlatform()
-}
 
 sourceSets {
     main {
@@ -42,4 +39,21 @@ sourceSets {
             srcDirs = ['src/main/resources']
         }
     }
+}
+
+// Create a fat jar that includes all dependencies
+tasks.register('fatJar', Jar) {
+    manifest {
+        attributes 'Main-Class': 'com.tsp.Main'
+    }
+    archiveClassifier = 'fat'
+    
+    from sourceSets.main.output
+    
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+    
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
