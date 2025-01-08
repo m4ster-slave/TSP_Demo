@@ -20,6 +20,7 @@ Im Rahmen dieses Protokolls werden drei unterschiedliche Lösungsansätze in Jav
 * Die **Ant Colony Optimization** (ACO) als naturinspirierte Heuristik für effiziente Näherungslösungen
 
 Die Implementierung erfolgt in Java mit besonderem Fokus auf objektorientiertes Design und wird durch eine grafische Benutzeroberfläche ergänzt (GUI). Die praktische Anwendung der Algorithmen erfolgt im Kontext der Optimierung von Verteilungsrouten für die vorgegebenen Städte, wobei sowohl Lösungsqualität als auch Laufzeitverhalten verglichen werden.
+<div style="page-break-after: always;"></div>
 
 ## 2. Analyse des allgemeinen Problems <a name="analyse"></a>
 
@@ -29,17 +30,18 @@ Das TSP wird als Graph **G = (V,E)** dargestellt:
 
 * Die zu besuchenden Knoten: $$V$$
 * Kanten zwischen den Orten (Verbindungen): $$E$$
-* Kosten für jede Kante von Ort zu Ort: $$c\_{ij}$$
-* Kanten nutzung (1 = in benutzt; 0 = nicht in benutzung): $$x\_{ij}$$
+* Kosten für jede Kante von Ort zu Ort: $$c_{ij}$$
+* Kanten nutzung (1 = in benutzt; 0 = nicht in benutzung): $$x_{ij}$$
 
 #### Zielfunktion:
 
-$$\\min \\sum\_{i=1}^n \\sum\_{j=1}^n c\_{ij}x\_{ij}$$
+$$\min \sum_{i=1}^n \sum_{j=1}^n c_{ij}x_{ij}$$
 
 Mit den Bedingungen:
 
-* Jeder Ort wird genau einmal besucht: $$\\sum\_{j=1}^n x\_{ij} = 1$$
-* Von jedem Ort wird genau einmal abgereist: $$\\sum\_{i=1}^n x\_{ij} = 1$$
+* Jeder Ort wird genau einmal besucht: $$\sum_{j=1}^n x_{ij} = 1$$
+* Von jedem Ort wird genau einmal abgereist: $$\sum_{i=1}^n x_{ij} = 1$$
+<div style="page-break-after: always;"></div>
 
 ### Komplexitätsanalyse
 
@@ -71,6 +73,8 @@ Die Berechnung der exakten Distanzen zwischen den Städten erfolgt mittels des V
    * Netzwerkoptimierung
    * Serverplatzierung
    * Datenverteilung
+<div style="page-break-after: always;"></div>
+
 
 ## 3. Glossar <a name="glossar"></a>
 
@@ -124,6 +128,8 @@ Branch and Bound ist ein exaktes Verfahren, das die optimale Lösung garantiert 
    * Ausschluss von Teilproblemen
    * Reduzierung des Suchraums
    * Fokussierung auf vielversprechende Bereiche
+<div style="page-break-after: always;"></div>
+
 
 #### Algorithmus:
 
@@ -165,6 +171,8 @@ ACO ist ein naturinspirierter Algorithmus, der das Verhalten von Ameisenkolonien
    * Verdunstung alter Pheromone
    * Verstärkung guter Routen
    * Adaptive Anpassung
+<div style="page-break-after: always;"></div>
+
 
 #### Algorithmus:
 
@@ -204,6 +212,8 @@ Der modifizierte Nearest Neighbor Algorithmus erweitert den klassischen Ansatz u
    * Greedy-Auswahl nächster Städte
    * Zonenbasierte Kostenbewertung
    * Effiziente Routenfindung
+<div style="page-break-after: always;"></div>
+
 
 #### Algorithmus:
 
@@ -232,18 +242,24 @@ function findCheapestNextCity(current, zones):
 
     return bestCity
 ```
+<div style="page-break-after: always;"></div>
 
 ## 5. Softwarearchitektur <a name="architektur"></a>
 
 ### Klassendiagramm:
 ![](Class-Diagramm.png)
-Beschreibung:
+
+### Beschreibung:
 Das Klassendiagramm zeigt die technische Struktur der Anwendung nach dem Model-View-Controller-Prinzip. Die MainView-Klasse fungiert als zentraler Koordinator und verbindet die verschiedenen Komponenten. Das GUI-System besteht aus einer WorldMap zur Kartendarstellung mit integriertem PathRenderer für die Routenvisualisierung sowie einem CityAutocompleteTextField für die Städtesuche. Das Datenmodell wird durch die CityData-Klasse repräsentiert, die einzelne CityInfo-Objekte verwaltet und durch ContinentsData ergänzt wird. Die algorithmische Komponente basiert auf dem TSPAlgorithm-Interface, das von den drei konkreten Implementierungen (NearestNeighbor, BranchAndBound, ACO) implementiert wird. Ein gemeinsam genutzter DistanceCalculator ermöglicht die einheitliche Berechnung von Entfernungen. Die Klassenstruktur ist modular aufgebaut und ermöglicht eine klare Trennung der Verantwortlichkeiten sowie einfache Erweiterbarkeit.
+<div style="page-break-after: always;"></div>
 
 ### Anwendungsdiagramm:
 ![](Use-Case.png)
-Beschreibung:
+### Beschreibung:
 Das Anwendungsdiagramm illustriert die Kernfunktionalitäten der TSP-Anwendung aus der Benutzerperspektive. Der Benutzer steht im Zentrum und interagiert mit verschiedenen Hauptfunktionen: Er kann Städte zur Route hinzufügen oder entfernen, die berechnete Route auf einer Karte visualisieren und Performance-Metriken einsehen. Die Städteauswahl wird durch eine Suchfunktion unterstützt. Ein zentrales Element ist die Algorithmusauswahl, bei der der Benutzer zwischen drei verschiedenen Verfahren wählen kann: Branch and Bound für exakte Lösungen, Nearest Neighbor für schnelle Näherungen und Ant Colony Optimization als naturinspirierte Heuristik. Die "include"-Beziehungen zeigen die logischen Abhängigkeiten zwischen den Funktionen, wobei die Routenberechnung und -visualisierung eng mit der Algorithmusauswahl verknüpft sind.
+<div style="page-break-after: always;"></div>
+
+
 ## 6. Vergleich der Algorithmen <a name="vergleich"></a>
 
 ### Theoretischer Vergleich
@@ -278,6 +294,7 @@ Die drei implementierten Algorithmen unterscheiden sich grundlegend in ihren the
 | Branch & Bound        | 787.300 ns          | 1642,98 km  |
 | ACO                   | 11,903 ms           | 1642,98 km  |
 | Mod. Nearest Neighbor | 54.500 ns           | 1855,35 km  |
+<div style="page-break-after: always;"></div>
 
 ##### 2. Mittlere Instanzen (16 Städte)
 
@@ -309,6 +326,8 @@ Die drei implementierten Algorithmen unterscheiden sich grundlegend in ihren the
 * Performance-Optimierung bei großen Datensätzen ohne Beeinträchtigung der GUI-Reaktivität
 * Balance zwischen Laufzeitoptimierung und Codequalität/Wartbarkeit
 * Korrekte Implementierung der geodätischen Berechnungen mit dem Vincenty-Algorithmus
+<div style="page-break-after: always;"></div>
+
 
 ### Verbesserungspotenzial
 
@@ -337,6 +356,8 @@ Die drei implementierten Algorithmen unterscheiden sich grundlegend in ihren the
 * Entwicklung einer Web-basierten Version der Anwendung
 * Optimierung für sehr große Datensätze (>1000 Städte)
 * Integration von Höhendaten für noch präzisere Distanzberechnungen
+<div style="page-break-after: always;"></div>
+
 
 ## 8. Quellenverzeichnis <a name="quellen"></a>
 
