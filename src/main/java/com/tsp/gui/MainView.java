@@ -114,7 +114,7 @@ public class MainView extends Application {
   }
 
   private void setupSelectedCitiesList() {
-    VBox citiesContainer = new VBox(5);
+    VBox citiesContainer = new VBox(10);
     Label title = new Label("Selected Cities");
     title.getStyleClass().add("section-title");
 
@@ -138,9 +138,10 @@ public class MainView extends Application {
   private void setupSearchBar() {
     searchBar = new CityAutocompleteTextField();
 
+    // once returned from search
     searchBar.setOnCitySelected((name, lat, lon) -> {
-      CityInfo newCity = new CityInfo(name, 0, lon, lat, "");
-      // match by name
+      CityInfo newCity = new CityInfo(name, lon, lat);
+      // match by name so we cant input the same city twice
       if (!selectedCities.stream().anyMatch(city -> city.getName().equals(name))) {
         selectedCities.add(newCity);
         worldMap.addCity(newCity);

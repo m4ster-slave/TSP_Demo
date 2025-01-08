@@ -13,17 +13,13 @@ import com.tsp.util.ContinentsData.ContinentInfo;
 public class NearestNeighbor implements TSPAlgorithm {
   private double pathLength;
   private long executionTime;
-  private final ContinentsData continentsData;
+  private ContinentsData continentsData = new ContinentsData("/data/continents.csv");
 
-  // Costs for different transitions
+  // costs for different transitions
   private static final double SAME_COUNTRY_COST = 0.0;
   private static final double SAME_SUBREGION_COST = 1.0;
   private static final double SAME_CONTINENT_COST = 2.0;
   private static final double DIFFERENT_CONTINENT_COST = 3.0;
-
-  public NearestNeighbor(ContinentsData continentsData) {
-    this.continentsData = continentsData;
-  }
 
   @Override
   public List<CityInfo> findPath(List<CityInfo> cities) {
@@ -36,12 +32,12 @@ public class NearestNeighbor implements TSPAlgorithm {
     List<CityInfo> path = new ArrayList<>();
     Set<CityInfo> unvisitedCities = new HashSet<>(cities);
 
-    // Start with first city
+    // start with first city
     CityInfo currentCity = cities.get(0);
     path.add(currentCity);
     unvisitedCities.remove(currentCity);
 
-    // Find path until all cities are visited
+    // find path until all cities are visited
     while (!unvisitedCities.isEmpty()) {
       CityInfo nextCity = findNearestCity(currentCity, unvisitedCities);
       path.add(nextCity);
@@ -49,10 +45,10 @@ public class NearestNeighbor implements TSPAlgorithm {
       currentCity = nextCity;
     }
 
-    // Return to start
+    // return to start
     path.add(cities.get(0));
 
-    pathLength = calculateTotalPathLength(path);
+    pathLength = DistanceCalculator.calculatePathLength(path);
     executionTime = System.nanoTime() - startTime;
     return path;
   }
@@ -83,7 +79,7 @@ public class NearestNeighbor implements TSPAlgorithm {
       return DIFFERENT_CONTINENT_COST;
     }
 
-    // Check hierarchy from specific to general
+    // check hierarchy from specific to general
     if (info1.getCountry().equals(info2.getCountry())) {
       return SAME_COUNTRY_COST;
     }
@@ -97,17 +93,6 @@ public class NearestNeighbor implements TSPAlgorithm {
     }
 
     return DIFFERENT_CONTINENT_COST;
-  }
-
-  private double calculateTotalPathLength(List<CityInfo> path) {
-    if (path.isEmpty())
-      return 0;
-    double total = DistanceCalculator.calculatePathLength(path);
-    // Add transition costs
-    for (int i = 0; i < path.size() - 1; i++) {
-      total += calculateTransitionCost(path.get(i), path.get(i + 1));
-    }
-    return total;
   }
 
   @Override

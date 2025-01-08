@@ -31,9 +31,9 @@ public class ACO implements TSPAlgorithm {
 
     Random random = new Random();
 
-    // Main ACO loop
+    // main ACO loop
     for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-      // Generate solutions for all ants
+      // generate solutions for all ants
       for (int ant = 0; ant < NUM_ANTS; ant++) {
         List<CityInfo> currentPath = constructAntPath(cities, distances, pheromones, random);
         double currentLength = DistanceCalculator.calculatePathLength(currentPath);
@@ -44,7 +44,7 @@ public class ACO implements TSPAlgorithm {
         }
       }
 
-      // Update pheromones
+      // update pheromones
       evaporatePheromones(pheromones);
       updatePheromones(pheromones, cities, bestPath, bestLength);
     }
@@ -63,12 +63,12 @@ public class ACO implements TSPAlgorithm {
     List<CityInfo> path = new ArrayList<>();
     boolean[] visited = new boolean[numCities];
 
-    // Start from first city
+    // start from first city
     int currentCity = 0;
     path.add(cities.get(currentCity));
     visited[currentCity] = true;
 
-    // Path to remaining cities
+    // path to remaining cities
     for (int i = 1; i < numCities; i++) {
       int nextCity = selectNextCity(currentCity, visited, pheromones, distances, random);
       path.add(cities.get(nextCity));
@@ -76,7 +76,7 @@ public class ACO implements TSPAlgorithm {
       currentCity = nextCity;
     }
 
-    // Return to start
+    // return to start
     path.add(cities.get(0));
 
     return path;
@@ -91,7 +91,7 @@ public class ACO implements TSPAlgorithm {
     List<Double> probabilities = new ArrayList<>();
     double total = 0.0;
 
-    // Calculate probabilities for each unvisited city
+    // calculate probabilities for each unvisited city
     int cityIndex = 0;
     for (boolean isVisited : visited) {
       if (!isVisited) {
@@ -104,7 +104,7 @@ public class ACO implements TSPAlgorithm {
       cityIndex++;
     }
 
-    // Select next city randomly based on probabilities
+    // select next city randomly based on probabilities
     double r = random.nextDouble() * total;
     double sum = 0.0;
 
@@ -115,7 +115,7 @@ public class ACO implements TSPAlgorithm {
       }
     }
 
-    // Fallback: return first unvisited city
+    // fallback: return first unvisited city
     return unvisitedCities.isEmpty() ? -1 : unvisitedCities.get(0);
   }
 

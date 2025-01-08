@@ -11,16 +11,13 @@ import javafx.scene.shape.Line;
 
 public class PathRenderer extends Group {
   private final WorldMap worldMap;
-  private Color pathColor = Color.GREEN;
+  private Color pathColor = Color.web("#4398d0");
 
   public PathRenderer(WorldMap worldMap) {
     this.worldMap = worldMap;
   }
 
-  public void setPathColor(Color color) {
-    this.pathColor = color;
-  }
-
+  // draw path from every point to another
   public void renderPath(List<CityInfo> path) {
     getChildren().clear();
 

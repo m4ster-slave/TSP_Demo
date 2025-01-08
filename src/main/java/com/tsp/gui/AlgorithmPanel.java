@@ -11,13 +11,10 @@ import com.tsp.algorithm.BranchAndBound;
 import com.tsp.algorithm.NearestNeighbor;
 import com.tsp.algorithm.TSPAlgorithm;
 import com.tsp.util.CityData.CityInfo;
-import com.tsp.util.ContinentsData;
 
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 public class AlgorithmPanel extends VBox {
   private final List<TSPAlgorithm> algorithms;
@@ -25,6 +22,8 @@ public class AlgorithmPanel extends VBox {
   public final PathRenderer pathRenderer;
   private int selectedAlgorithm;
   private List<CityInfo> currentCities = new ArrayList<>();
+
+  // cache for the algorithm results at their index
   private final Map<Integer, CompletableFuture<AlgorithmResult>> runningCalculations = new HashMap<>();
 
   private static class AlgorithmResult {
@@ -40,14 +39,8 @@ public class AlgorithmPanel extends VBox {
   }
 
   public AlgorithmPanel(WorldMap worldMap) {
-    setPadding(new Insets(10));
-    setSpacing(10);
-
-    ContinentsData continentsData = new ContinentsData();
-    continentsData.loadFromCSV("/data/continents2.csv");
-
     algorithms = List.of(
-        new NearestNeighbor(continentsData),
+        new NearestNeighbor(),
         new BranchAndBound(),
         new ACO());
 
@@ -64,12 +57,12 @@ public class AlgorithmPanel extends VBox {
   public void selectAlgorithm(int index) {
     this.selectedAlgorithm = index;
     if (!currentCities.isEmpty()) {
-      // Get the result for the selected algorithm
+      // get the result for the selected algorithm
       CompletableFuture<AlgorithmResult> calculation = runningCalculations.get(index);
+      // if algorithm result exists and is done
       if (calculation != null && calculation.isDone()) {
         try {
-          AlgorithmResult result = calculation.get();
-          pathRenderer.setPathColor(Color.BLUE);
+          AlgorithmResult result = calculation.get(); // get waits for future to complete
           pathRenderer.renderPath(result.path);
         } catch (Exception e) {
           e.printStackTrace();
@@ -85,23 +78,23 @@ public class AlgorithmPanel extends VBox {
       return;
     }
 
-    // Check if cities have changed
+    // check if cities have changed
     boolean citiesChanged = !cities.equals(currentCities);
     currentCities = new ArrayList<>(cities);
 
-    // If cities changed, cancel existing calculations and start new ones
+    // if cities changef cancel existing calculations and start new ones
     if (citiesChanged) {
-      // Cancel any running calculations
       runningCalculations.values().forEach(future -> future.cancel(true));
       runningCalculations.clear();
 
       resultArea.setText("Calculating...");
 
-      // Start new calculations for all algorithms
+      // start new calculations for all algorithms
       for (int i = 0; i < algorithms.size(); i++) {
         final int algorithmIndex = i;
         final TSPAlgorithm algorithm = algorithms.get(i);
 
+        // start a new thread to run the algorithm
         CompletableFuture<AlgorithmResult> calculation = CompletableFuture.supplyAsync(() -> {
           List<CityInfo> path = algorithm.findPath(cities);
           return new AlgorithmResult(
@@ -110,24 +103,23 @@ public class AlgorithmPanel extends VBox {
               algorithm.getExecutionTime());
         });
 
+        // put the result of the calculation in the hashmap
         runningCalculations.put(algorithmIndex, calculation);
 
-        // Update UI when calculation completes
+        // update UI when calculation completes
         calculation.thenAcceptAsync(result -> {
           if (algorithmIndex == selectedAlgorithm) {
-            pathRenderer.setPathColor(Color.web("#3498d0"));
             pathRenderer.renderPath(result.path);
           }
           updateResultArea();
         }, Platform::runLater);
       }
     } else {
-      // Just update the display for the selected algorithm
+      // if the cities dont have changed update the display for the selected algorithm
       CompletableFuture<AlgorithmResult> calculation = runningCalculations.get(selectedAlgorithm);
       if (calculation != null && calculation.isDone()) {
         try {
           AlgorithmResult result = calculation.get();
-          pathRenderer.setPathColor(Color.web("#3498d0"));
           pathRenderer.renderPath(result.path);
         } catch (Exception e) {
           e.printStackTrace();
@@ -150,9 +142,19 @@ public class AlgorithmPanel extends VBox {
     return String.format("%.3f s", s);
   }
 
+  private String formatPath(List<CityInfo> path) {
+    if (path == null || path.isEmpty()) {
+      return "No path";
+    }
+    return path.stream()
+        .map(CityInfo::getName)
+        .collect(java.util.stream.Collectors.joining(" → "));
+  }
+
   private void updateResultArea() {
     StringBuilder results = new StringBuilder();
 
+    // for each algorithm set the text output
     for (int i = 0; i < algorithms.size(); i++) {
       CompletableFuture<AlgorithmResult> calculation = runningCalculations.get(i);
       if (calculation != null && calculation.isDone()) {
@@ -175,16 +177,6 @@ public class AlgorithmPanel extends VBox {
     }
 
     resultArea.setText(results.toString());
-
-  }
-
-  private String formatPath(List<CityInfo> path) {
-    if (path == null || path.isEmpty()) {
-      return "No path";
-    }
-    return path.stream()
-        .map(CityInfo::getName)
-        .collect(java.util.stream.Collectors.joining(" → "));
   }
 
   public void clear() {

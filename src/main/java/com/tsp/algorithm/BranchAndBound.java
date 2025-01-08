@@ -10,6 +10,7 @@ public class BranchAndBound implements TSPAlgorithm {
   private long executionTime;
   private static final double INFINITY = Double.MAX_VALUE;
   private static final long TIME_LIMIT_MS = 20000; // second timeout
+  private static final int CITY_LIMIT = 17; // second timeout
   private long startTime;
 
   private static class Node implements Comparable<Node> {
@@ -48,34 +49,44 @@ public class BranchAndBound implements TSPAlgorithm {
     int n = cities.size();
     if (n < 2) {
       return new ArrayList<>(cities);
+    } else if (n > CITY_LIMIT) {
+      // need a city limit becaus of O(n!) runtime
+      this.executionTime = 0;
+      this.pathLength = 0;
+      return null;
     }
 
-    // Calculate distance matrix
+    // calculate distance matrix
     double[][] distances = TSPUtils.calculateDistanceMatrix(cities);
 
-    // Initialize priority queue with root node
+    // initialize priority queue with root node
     PriorityQueue<Node> pq = new PriorityQueue<>();
     Node root = new Node(n);
-    root.path.add(0); // Start from first city
+    root.path.add(0); // start from first city
     root.visited[0] = true;
     root.bound = calculateBound(root, distances);
 
+    // inserts the specified element into this priority queue.
     pq.offer(root);
     Node bestNode = null;
     double bestCost = INFINITY;
 
-    // Branch and bound main loop
+    // branch and bound main loop
     while (!pq.isEmpty() && (System.nanoTime() - startTime) / 1_000_000 < TIME_LIMIT_MS) {
+      /*
+       * retrieves and removes the head of this queue, or returns `null` if this queue
+       * is empty.
+       */
       Node current = pq.poll();
 
-      // Skip if bound is worse than best solution
+      // skip if bound is worse than best solution
       if (current.bound >= bestCost) {
         continue;
       }
 
-      // If all cities are visited
+      // if all cities are visited
       if (current.level == n - 1) {
-        // Add cost to return to starting city
+        // add cost to return to starting city
         double finalCost = current.cost + distances[current.path.get(n - 1)][0];
         if (finalCost < bestCost) {
           current.path.add(0); // Complete the cycle
@@ -85,7 +96,7 @@ public class BranchAndBound implements TSPAlgorithm {
         continue;
       }
 
-      // Try all possible next cities
+      // try all possible next cities
       for (int i = 0; i < n; i++) {
         if (!current.visited[i]) {
           Node newNode = new Node(current);
@@ -102,18 +113,17 @@ public class BranchAndBound implements TSPAlgorithm {
       }
     }
 
-    // Convert path indices back to cities
+    // convert path indices back to cities
     List<CityInfo> finalPath = new ArrayList<>();
-    if (bestNode != null) {
+    if (bestNode != null && (System.nanoTime() - startTime) / 1_000_000 < TIME_LIMIT_MS) {
       for (int index : bestNode.path) {
         finalPath.add(cities.get(index));
       }
       this.pathLength = bestCost;
     } else {
-      // Fallback to simple path if no solution found
-      finalPath = new ArrayList<>(cities);
-      finalPath.add(cities.get(0));
-      this.pathLength = DistanceCalculator.calculatePathLength(finalPath);
+      // fallback to no path
+      finalPath = null;
+      this.pathLength = 0;
     }
 
     this.executionTime = System.nanoTime() - startTime;
@@ -124,7 +134,7 @@ public class BranchAndBound implements TSPAlgorithm {
     int n = distances.length;
     double bound = node.cost;
 
-    // For each unvisited city, add minimum cost edge
+    // for each unvisited city, add minimum cost edge
     for (int i = 0; i < n; i++) {
       if (!node.visited[i]) {
         double minEdge = INFINITY;
@@ -137,7 +147,7 @@ public class BranchAndBound implements TSPAlgorithm {
       }
     }
 
-    // Add minimum edge back to start city if not all cities are visited
+    // add minimum edge back to start city if not all cities are visited
     if (node.level < n - 1) {
       double minReturn = INFINITY;
       for (int i = 0; i < n; i++) {

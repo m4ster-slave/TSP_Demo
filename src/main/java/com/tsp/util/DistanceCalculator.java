@@ -16,7 +16,7 @@ public class DistanceCalculator {
     double lat2 = Math.toRadians(city2.getLatitude());
     double lon2 = Math.toRadians(city2.getLongitude());
 
-    // Vincenty formula parameters
+    // Vincenty formula
     double L = lon2 - lon1;
     double U1 = Math.atan((1 - FLATTENING) * Math.tan(lat1));
     double U2 = Math.atan((1 - FLATTENING) * Math.tan(lat2));

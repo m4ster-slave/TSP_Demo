@@ -21,21 +21,29 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class CityAutocompleteTextField extends VBox {
-  private final TextField textField = new TextField();
-  private final ListView<CityInfo> suggestionList = new ListView<>();
+  private final TextField textField = new TextField(); // user input
+  private final ListView<CityInfo> suggestionList = new ListView<>(); // list for suggestions
   private final Popup popup = new Popup();
-  private final CityData cityData = new CityData();
+  private final CityData cityData = new CityData(); // reads data from CSV file
+
+  // executes search tasks as a new thread
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+  // schedules delayed searches
   private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+
+  // tracks if a current search is ongoing
   private final AtomicReference<javafx.concurrent.Task<List<CityData.CityInfo>>> currentTask = new AtomicReference<>();
+
+  // callback for when a city is selected
   private CitySelectedCallback citySelectedCallback;
 
   public interface CitySelectedCallback {
-    void onCitySelected(String name, double lat, double lon);
+    void onCitySelected(String name, double lat, double lon); // interface for callback
   }
 
   public void setOnCitySelected(CitySelectedCallback callback) {
-    this.citySelectedCallback = callback;
+    this.citySelectedCallback = callback; // sets the callback for city selection
   }
 
   public CityAutocompleteTextField() {
@@ -51,35 +59,55 @@ public class CityAutocompleteTextField extends VBox {
     popup.getContent().add(suggestionList);
 
     textField.textProperty().addListener((observable, oldValue, newValue) -> {
-      javafx.concurrent.Task<List<CityData.CityInfo>> previousTask = currentTask.get();
+
+      // if current task hasnt finished cancel it
+      javafx.concurrent.Task<List<CityInfo>> previousTask = currentTask.get();
       if (previousTask != null) {
         previousTask.cancel();
       }
 
+      // hide the popup if the input is empty
       if (newValue.length() == 0) {
         Platform.runLater(popup::hide);
         return;
       }
 
       scheduledExecutor.schedule(() -> {
+        // ensure the input hasn’t changed
         if (!textField.getText().equals(newValue)) {
           return;
         }
 
-        javafx.concurrent.Task<List<CityData.CityInfo>> searchTask = new javafx.concurrent.Task<>() {
+        // perform the search operation
+        javafx.concurrent.Task<List<CityInfo>> searchTask = new javafx.concurrent.Task<>() {
           @Override
-          protected List<CityData.CityInfo> call() {
+          protected List<CityInfo> call() {
             return cityData.searchCities(newValue);
           }
         };
 
         searchTask.setOnSucceeded(event -> {
-          if (!searchTask.isCancelled()) {
-            List<CityData.CityInfo> suggestions = searchTask.getValue();
+          if (!searchTask.isCancelled()) { // ensure task wasnt cancelled
+            // get the cityData list returned from the fuzzy search
+            List<CityInfo> suggestions = searchTask.getValue();
             if (!suggestions.isEmpty()) {
+              /*
+               * Run the specified Runnable on the JavaFX Application Thread at
+               * some unspecified time in the future. This method, which may be
+               * called from any thread, will post the Runnable to an event queue
+               * and then return immediately to the caller. The Runnables are
+               * executed in the order they are posted. A runnable passed into
+               * the runLater method will be executed before any Runnable passed
+               * into a subsequent call to runLater. If this method is called
+               * after the JavaFX runtime has been shutdown, the call will be
+               * ignored: the Runnable will not be executed and no exception
+               * will be thrown.
+               */
+
               Platform.runLater(() -> {
                 suggestionList.setItems(FXCollections.observableArrayList(suggestions));
                 if (!popup.isShowing()) {
+                  // calculate position with bounds to fit popup to textbox
                   Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
                   popup.show(textField, bounds.getMinX(), bounds.getMaxY());
                 }
@@ -92,22 +120,23 @@ public class CityAutocompleteTextField extends VBox {
 
         currentTask.set(searchTask);
         executorService.submit(searchTask);
-      }, 150, TimeUnit.MILLISECONDS);
+      }, 100, TimeUnit.MILLISECONDS); // delay execution
     });
 
+    // handle clicking on a city
     suggestionList.setOnMouseClicked(event -> {
-      CityData.CityInfo selectedItem = suggestionList.getSelectionModel().getSelectedItem();
+      CityInfo selectedItem = suggestionList.getSelectionModel().getSelectedItem();
       if (selectedItem != null) {
         handleCitySelection(selectedItem);
       }
     });
 
     textField.setOnKeyPressed(event -> {
-      if (event.getCode() == KeyCode.DOWN) {
+      if (event.getCode() == KeyCode.DOWN) { // navigate to the suggestion list
         suggestionList.getSelectionModel().selectFirst();
         suggestionList.requestFocus();
-        event.consume();
-      } else if (event.getCode() == KeyCode.ESCAPE) {
+        event.consume(); // indicate event as fully handled
+      } else if (event.getCode() == KeyCode.ESCAPE) { // hide popup
         popup.hide();
         event.consume();
       }
@@ -115,7 +144,7 @@ public class CityAutocompleteTextField extends VBox {
 
     suggestionList.setOnKeyPressed(event -> {
       if (event.getCode() == KeyCode.ENTER) {
-        CityData.CityInfo selectedItem = suggestionList.getSelectionModel().getSelectedItem();
+        CityInfo selectedItem = suggestionList.getSelectionModel().getSelectedItem();
         if (selectedItem != null) {
           handleCitySelection(selectedItem);
         }
@@ -128,7 +157,8 @@ public class CityAutocompleteTextField extends VBox {
     });
   }
 
-  private void handleCitySelection(CityData.CityInfo cityInfo) {
+  // return a city from the search
+  private void handleCitySelection(CityInfo cityInfo) {
     textField.setText("");
     popup.hide();
 
@@ -140,6 +170,7 @@ public class CityAutocompleteTextField extends VBox {
     }
   }
 
+  // shut down the executor service, and scheduled executer
   public void cleanup() {
     executorService.shutdownNow();
     scheduledExecutor.shutdownNow();

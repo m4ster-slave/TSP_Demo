@@ -4,6 +4,10 @@ import com.tsp.util.CityData.CityInfo;
 import java.util.List;
 
 public class TSPUtils {
+  /*
+   * the matrix is used by the TSP algorithms (Branch&Bound and
+   * ACO) to avoid recalculating distances
+   */
   public static double[][] calculateDistanceMatrix(List<CityInfo> cities) {
     int n = cities.size();
     double[][] distances = new double[n][n];

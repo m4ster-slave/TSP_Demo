@@ -17,6 +17,10 @@ public class WorldMap extends Pane {
   private double baseHeight = baseWidth / MAP_ASPECT_RATIO;
 
   public WorldMap() {
+    /*
+     * add image and check if image has been found bc there is a problem with the
+     * resource folder sometimes
+     */
     try {
       Image image = new Image(getClass().getResource("/images/world-map.png").toString());
       mapImageView = new ImageView(image);
@@ -29,6 +33,7 @@ public class WorldMap extends Pane {
 
     getChildren().add(mapImageView);
 
+    // reposition all points if image is resized + on app startup
     layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
       double width = newValue.getWidth();
       double height = newValue.getHeight();
@@ -45,6 +50,7 @@ public class WorldMap extends Pane {
     });
   }
 
+  // translate coordinates to pixels on the Pane
   public Point2D geoToPixel(double lat, double lon) {
     double x = (lon + 180) / 360.0;
     double y = (90 - lat) / 180.0;
@@ -57,7 +63,7 @@ public class WorldMap extends Pane {
         mapImageView.getTranslateY() + (y * mapHeight));
   }
 
-  public Circle addCity(CityInfo city) {
+  public void addCity(CityInfo city) {
     Point2D point = geoToPixel(city.getLatitude(), city.getLongitude());
 
     Circle cityPoint = new Circle(5, Color.web("#3498db"));
@@ -66,6 +72,7 @@ public class WorldMap extends Pane {
 
     cityPoint.setUserData(city);
 
+    // install a tootip so it displays the city name when hovering over it
     Tooltip tooltip = new Tooltip(city.getName());
     Tooltip.install(cityPoint, tooltip);
 
@@ -73,13 +80,17 @@ public class WorldMap extends Pane {
     cityPoint.setLayoutY(point.getY());
 
     getChildren().add(cityPoint);
-    return cityPoint;
   }
 
   public void clearCities() {
     getChildren().removeIf(node -> node instanceof Circle);
   }
 
+  /*
+   * - filter out each Circle object
+   * - cast them to a Circle
+   * - iterate over them and reposition the point
+   */
   private void repositionAllPoints() {
     getChildren().stream()
         .filter(node -> node instanceof Circle)
