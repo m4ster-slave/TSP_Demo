@@ -148,7 +148,7 @@ public class AlgorithmPanel extends VBox {
     }
     return path.stream()
         .map(CityInfo::getName)
-        .collect(java.util.stream.Collectors.joining(" → "));
+        .collect(java.util.stream.Collectors.joining(" -> "));
   }
 
   private void updateResultArea() {
