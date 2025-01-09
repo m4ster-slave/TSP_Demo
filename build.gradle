@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'org.beryx.jlink' version '3.0.1'
 }
 
 group 'com.tsp'
@@ -18,30 +17,25 @@ java {
 }
 
 application {
-    mainModule = 'com.tsp'
     mainClass = 'com.tsp.Main'
 }
 
 javafx {
     version = '17.0.2'
-    modules = ['javafx.controls', 'javafx.fxml']
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.base']
 }
 
 dependencies {
     implementation 'com.opencsv:opencsv:5.7.1'
     implementation 'me.xdrop:fuzzywuzzy:1.4.0'
+    
+    // Add explicit JavaFX dependencies for packaging
+    implementation "org.openjfx:javafx-base:17.0.2:win"
+    implementation "org.openjfx:javafx-graphics:17.0.2:win"
+    implementation "org.openjfx:javafx-controls:17.0.2:win"
+    implementation "org.openjfx:javafx-fxml:17.0.2:win"
 }
 
-
-sourceSets {
-    main {
-        resources {
-            srcDirs = ['src/main/resources']
-        }
-    }
-}
-
-// Create a fat jar that includes all dependencies
 tasks.register('fatJar', Jar) {
     manifest {
         attributes 'Main-Class': 'com.tsp.Main'
@@ -52,8 +46,19 @@ tasks.register('fatJar', Jar) {
     
     dependsOn configurations.runtimeClasspath
     from {
-        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    
+    // Exclude module-info files to avoid conflicts
+    exclude 'module-info.class'
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
 }
